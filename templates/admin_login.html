@@ -1,0 +1,222 @@
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Admin Login</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+</head>
+
+<body style="margin:0;font-family:Arial;background:#f3f4f6;">
+
+<div id="root"></div>
+
+<script>
+
+const e = React.createElement
+
+const errorMessage = `{{ error if error else "" }}`
+
+function AdminLoginPage() {
+
+    return e(
+        "div",
+        null,
+
+        e(
+            "div",
+            {
+                style:navbar
+            },
+
+            e(
+                "h2",
+                {
+                    style:{
+                        margin:"0",
+                        fontSize:"30px"
+                    }
+                },
+                "ResolveHub Admin"
+            ),
+
+            e(
+                "button",
+                {
+                    onClick:()=>{
+                        window.location.href="/"
+                    },
+                    style:buttonStyle
+                },
+                "Entry Page"
+            )
+        ),
+
+        e(
+            "div",
+            {
+                style:container
+            },
+
+            e(
+                "div",
+                {
+                    style:card
+                },
+
+                e(
+                    "h1",
+                    {
+                        style:{
+                            textAlign:"center",
+                            marginBottom:"10px"
+                        }
+                    },
+                    "Admin Login"
+                ),
+
+                e(
+                    "p",
+                    {
+                        style:{
+                            textAlign:"center",
+                            color:"#555",
+                            marginBottom:"30px"
+                        }
+                    },
+                    "Login securely to monitor, manage, and resolve customer support tickets across the ResolveHub support management platform."
+                ),
+
+                errorMessage &&
+                e(
+                    "div",
+                    {
+                        style:errorBox
+                    },
+                    errorMessage
+                ),
+
+                e(
+                    "form",
+                    {
+                        method:"POST",
+                        action:"/admin/login"
+                    },
+
+                    e(
+                        "input",
+                        {
+                            type:"email",
+                            name:"email",
+                            placeholder:"Admin Email",
+                            required:true,
+                            style:inputStyle
+                        }
+                    ),
+
+                    e(
+                        "input",
+                        {
+                            type:"password",
+                            name:"password",
+                            placeholder:"Password",
+                            required:true,
+                            style:inputStyle
+                        }
+                    ),
+
+                    e(
+                        "button",
+                        {
+                            type:"submit",
+                            style:submitButton
+                        },
+                        "Login"
+                    )
+                )
+            )
+        )
+    )
+}
+
+const navbar = {
+    background:"#111827",
+    color:"white",
+    padding:"20px 40px",
+    display:"flex",
+    justifyContent:"space-between",
+    alignItems:"center"
+}
+
+const container = {
+    display:"flex",
+    justifyContent:"center",
+    alignItems:"center",
+    height:"85vh"
+}
+
+const card = {
+    background:"white",
+    padding:"40px",
+    borderRadius:"14px",
+    width:"450px",
+    boxShadow:"0 3px 12px rgba(0,0,0,0.1)"
+}
+
+const inputStyle = {
+    width:"100%",
+    padding:"14px",
+    marginTop:"15px",
+    borderRadius:"8px",
+    border:"1px solid #ccc",
+    boxSizing:"border-box",
+    fontSize:"15px"
+}
+
+const buttonStyle = {
+    padding:"12px 18px",
+    border:"none",
+    borderRadius:"8px",
+    cursor:"pointer",
+    fontWeight:"bold"
+}
+
+const submitButton = {
+    width:"100%",
+    padding:"14px",
+    marginTop:"25px",
+    border:"none",
+    borderRadius:"8px",
+    background:"#111827",
+    color:"white",
+    fontSize:"16px",
+    cursor:"pointer",
+    fontWeight:"bold"
+}
+
+const errorBox = {
+    background:"#fee2e2",
+    color:"#991b1b",
+    padding:"12px",
+    borderRadius:"8px",
+    marginBottom:"20px",
+    textAlign:"center",
+    fontWeight:"bold"
+}
+
+ReactDOM.createRoot(
+    document.getElementById("root")
+).render(
+    e(AdminLoginPage)
+)
+
+</script>
+
+</body>
+</html>
+```

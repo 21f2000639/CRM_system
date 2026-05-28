@@ -1,0 +1,415 @@
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Admin Dashboard</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+</head>
+
+<body style="margin:0;background:#f3f4f6;font-family:Arial;">
+
+<div id="root"></div>
+
+<script>
+
+const e = React.createElement
+
+const tickets = JSON.parse('{{ tickets_data | safe }}')
+
+function AdminDashboard() {
+
+    const [searchText,setSearchText] = React.useState("")
+    const [statusFilter,setStatusFilter] = React.useState("")
+
+    const filteredTickets = tickets.filter(ticket => {
+
+        const combinedText = `
+            ${ticket.ticket_id}
+            ${ticket.user_name}
+            ${ticket.user_email}
+            ${ticket.priority}
+            ${ticket.description}
+            ${ticket.created_at}
+            ${ticket.status}
+            ${ticket.title}
+        `.toLowerCase()
+
+        const matchesSearch =
+            combinedText.includes(searchText.toLowerCase())
+
+        const matchesStatus =
+            statusFilter === "" ||
+            ticket.status === statusFilter
+
+        return matchesSearch && matchesStatus
+    })
+
+    return e(
+        "div",
+        null,
+
+        e(
+            "div",
+            {
+                style:navbar
+            },
+
+            e(
+                "div",
+                {
+                    style:{
+                        display:"flex",
+                        alignItems:"center",
+                        gap:"20px"
+                    }
+                },
+
+                e(
+                    "h2",
+                    {
+                        style:{
+                            margin:"0",
+                            fontSize:"30px"
+                        }
+                    },
+                    "ResolveHub Admin"
+                ),
+
+                e(
+                    "button",
+                    {
+                        style:navButton,
+                        onClick:()=>{
+                            window.location.href="/"
+                        }
+                    },
+                    "Home"
+                )
+            ),
+
+            e(
+                "div",
+                {
+                    style:{
+                        display:"flex",
+                        gap:"10px",
+                        alignItems:"center"
+                    }
+                },
+
+                e(
+                    "input",
+                    {
+                        type:"text",
+                        placeholder:"Search tickets...",
+                        value:searchText,
+                        onChange:(event)=>{
+                            setSearchText(event.target.value)
+                        },
+                        style:searchInput
+                    }
+                ),
+
+                e(
+                    "button",
+                    {
+                        style:searchButton
+                    },
+                    "Search"
+                ),
+
+                e(
+                    "button",
+                    {
+                        style:clearButton,
+                        onClick:()=>{
+                            setSearchText("")
+                            setStatusFilter("")
+                        }
+                    },
+                    "Clear"
+                ),
+
+                e(
+                    "select",
+                    {
+                        value:statusFilter,
+                        onChange:(event)=>{
+                            setStatusFilter(event.target.value)
+                        },
+                        style:filterSelect
+                    },
+
+                    e("option",{value:""},"All Status"),
+                    e("option",{value:"Open"},"Open"),
+                    e("option",{value:"In Progress"},"In Progress"),
+                    e("option",{value:"Closed"},"Closed")
+                ),
+
+                e(
+                    "button",
+                    {
+                        style:logoutButton,
+                        onClick:()=>{
+                            window.location.href="/admin/logout"
+                        }
+                    },
+                    "Logout"
+                )
+            )
+        ),
+
+        e(
+            "div",
+            {
+                style:{
+                    padding:"40px"
+                }
+            },
+
+            e(
+                "h1",
+                {
+                    style:{
+                        fontSize:"48px",
+                        marginBottom:"10px",
+                        color:"#111827"
+                    }
+                },
+                "Admin Dashboard"
+            ),
+
+            e(
+                "p",
+                {
+                    style:{
+                        fontSize:"20px",
+                        lineHeight:"1.8",
+                        color:"#4b5563",
+                        marginBottom:"40px"
+                    }
+                },
+                "Monitor customer support tickets, update ticket statuses, search support requests instantly, and manage customer issues efficiently from a centralized dashboard."
+            ),
+
+            filteredTickets.length === 0 ?
+
+            e(
+                "h2",
+                {
+                    style:{
+                        color:"#6b7280"
+                    }
+                },
+                "No tickets found"
+            )
+
+            :
+
+            filteredTickets.map(ticket =>
+
+                e(
+                    "div",
+                    {
+                        key:ticket.id,
+                        style:ticketCard
+                    },
+
+                    e(
+                        "div",
+                        {
+                            style:{
+                                display:"flex",
+                                justifyContent:"space-between",
+                                alignItems:"center"
+                            }
+                        },
+
+                        e(
+                            "h2",
+                            {
+                                style:{
+                                    margin:"0",
+                                    color:"#111827"
+                                }
+                            },
+                            ticket.title
+                        ),
+
+                        e(
+                            "span",
+                            {
+                                style:statusBadge
+                            },
+                            ticket.status
+                        )
+                    ),
+
+                    e(
+                        "div",
+                        {
+                            style:{
+                                marginTop:"20px",
+                                fontSize:"17px",
+                                lineHeight:"1.9"
+                            }
+                        },
+
+                        e("p",null,`Ticket ID: ${ticket.ticket_id}`),
+                        e("p",null,`Customer Name: ${ticket.user_name}`),
+                        e("p",null,`Customer Email: ${ticket.user_email}`),
+                        e("p",null,`Priority: ${ticket.priority}`),
+                        e("p",null,`Description: ${ticket.description}`),
+                        e("p",null,`Created At: ${ticket.created_at}`)
+                    ),
+
+                    e(
+                        "form",
+                        {
+                            method:"POST",
+                            action:`/admin/update-status/${ticket.id}`,
+                            style:{
+                                marginTop:"25px",
+                                display:"flex",
+                                gap:"10px",
+                                alignItems:"center"
+                            }
+                        },
+
+                        e(
+                            "select",
+                            {
+                                name:"status",
+                                defaultValue:ticket.status,
+                                style:updateSelect
+                            },
+
+                            e("option",{value:"Open"},"Open"),
+                            e("option",{value:"In Progress"},"In Progress"),
+                            e("option",{value:"Closed"},"Closed")
+                        ),
+
+                        e(
+                            "button",
+                            {
+                                type:"submit",
+                                style:updateButton
+                            },
+                            "Update Status"
+                        )
+                    )
+                )
+            )
+        )
+    )
+}
+
+const navbar = {
+    background:"#111827",
+    color:"white",
+    padding:"20px 40px",
+    display:"flex",
+    justifyContent:"space-between",
+    alignItems:"center"
+}
+
+const navButton = {
+    padding:"12px 18px",
+    border:"none",
+    borderRadius:"8px",
+    cursor:"pointer",
+    fontWeight:"bold"
+}
+
+const searchInput = {
+    padding:"12px",
+    width:"280px",
+    borderRadius:"8px",
+    border:"none"
+}
+
+const searchButton = {
+    padding:"12px 18px",
+    border:"none",
+    borderRadius:"8px",
+    background:"#2563eb",
+    color:"white",
+    fontWeight:"bold",
+    cursor:"pointer"
+}
+
+const clearButton = {
+    padding:"12px 18px",
+    border:"none",
+    borderRadius:"8px",
+    background:"#6b7280",
+    color:"white",
+    fontWeight:"bold",
+    cursor:"pointer"
+}
+
+const filterSelect = {
+    padding:"12px",
+    borderRadius:"8px",
+    border:"none"
+}
+
+const logoutButton = {
+    padding:"12px 18px",
+    border:"none",
+    borderRadius:"8px",
+    background:"#dc2626",
+    color:"white",
+    fontWeight:"bold",
+    cursor:"pointer"
+}
+
+const ticketCard = {
+    background:"white",
+    padding:"30px",
+    borderRadius:"14px",
+    marginTop:"30px",
+    boxShadow:"0 3px 12px rgba(0,0,0,0.1)"
+}
+
+const statusBadge = {
+    background:"#111827",
+    color:"white",
+    padding:"8px 14px",
+    borderRadius:"20px",
+    fontSize:"14px"
+}
+
+const updateSelect = {
+    padding:"12px",
+    borderRadius:"8px",
+    width:"220px"
+}
+
+const updateButton = {
+    padding:"12px 18px",
+    border:"none",
+    borderRadius:"8px",
+    background:"#111827",
+    color:"white",
+    cursor:"pointer",
+    fontWeight:"bold"
+}
+
+ReactDOM.createRoot(
+    document.getElementById("root")
+).render(
+    e(AdminDashboard)
+)
+
+</script>
+
+</body>
+</html>
+```

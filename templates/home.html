@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>ResolveHub</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+</head>
+
+<body style="margin:0;font-family:Arial, sans-serif;background:#f3f4f6;">
+
+<div id="root"></div>
+
+<script>
+
+const e = React.createElement
+
+function Home() {
+
+    const [showModal, setShowModal] = React.useState(false)
+
+    const [email, setEmail] = React.useState("")
+
+    const createTicket = () => {
+        setShowModal(true)
+    }
+
+    const viewTickets = () => {
+
+        if(!email){
+
+            alert("Please enter your email first")
+
+            return
+        }
+
+        window.location.href = `/tickets/${email}`
+    }
+
+    return e(
+        "div",
+        null,
+
+        // NAVBAR
+        e(
+            "div",
+            {
+                style: navbar
+            },
+
+            e(
+                "h2",
+                {
+                    style:{
+                        fontSize:"32px",
+                        margin:"0"
+                    }
+                },
+                "ResolveHub"
+            ),
+
+            e(
+                "div",
+                {
+                    style:{
+                        display:"flex",
+                        gap:"12px",
+                        alignItems:"center"
+                    }
+                },
+
+                e(
+                    "input",
+                    {
+                        type:"email",
+                        placeholder:"Enter your email",
+                        value:email,
+                        onChange:(x)=>setEmail(x.target.value),
+                        style:searchInput
+                    }
+                ),
+
+                e(
+                    "button",
+                    {
+                        onClick:createTicket,
+                        style:buttonStyle
+                    },
+                    "Create Ticket"
+                ),
+
+                e(
+                    "button",
+                    {
+                        onClick:viewTickets,
+                        style:buttonStyle
+                    },
+                    "My Tickets"
+                ),
+
+                e(
+                    "button",
+                    {
+                        onClick:()=>{
+                            window.location.href="/admin/login"
+                        },
+                        style:buttonStyle
+                    },
+                    "Admin"
+                )
+            )
+        ),
+
+        // HERO SECTION
+        e(
+            "div",
+            {
+                style:{
+                    textAlign:"center",
+                    padding:"120px 40px"
+                }
+            },
+
+            e(
+                "h1",
+                {
+                    style:{
+                        fontSize:"64px",
+                        marginBottom:"20px",
+                        color:"#111827"
+                    }
+                },
+                "Welcome to ResolveHub"
+            ),
+
+            e(
+                "p",
+                {
+                    style:{
+                        width:"75%",
+                        margin:"auto",
+                        fontSize:"22px",
+                        lineHeight:"2",
+                        color:"#4b5563"
+                    }
+                },
+                "ResolveHub is a modern and intelligent ticket support management platform designed to simplify customer issue tracking and support operations. Users can quickly create support tickets, monitor ticket status, update issue details, and manage their requests efficiently through an easy-to-use interface. The platform ensures transparency and smooth communication between customers and support administrators, helping organizations provide faster issue resolution and improved customer satisfaction."
+            )
+        ),
+
+        // MODAL
+        showModal && e(
+            "div",
+            {
+                style:modalOverlay
+            },
+
+            e(
+                "div",
+                {
+                    style:modalBox
+                },
+
+                e(
+                    "h2",
+                    {
+                        style:{
+                            marginBottom:"20px"
+                        }
+                    },
+                    "Create Support Ticket"
+                ),
+
+                e(
+                    "form",
+                    {
+                        method:"POST",
+                        action:"/create-ticket"
+                    },
+
+                    e(
+                        "input",
+                        {
+                            name:"name",
+                            placeholder:"Customer Name",
+                            required:true,
+                            style:modalInput
+                        }
+                    ),
+
+                    e(
+                        "input",
+                        {
+                            name:"email",
+                            placeholder:"Customer Email",
+                            required:true,
+                            style:modalInput
+                        }
+                    ),
+
+                    e(
+                        "input",
+                        {
+                            name:"title",
+                            placeholder:"Issue Title",
+                            required:true,
+                            style:modalInput
+                        }
+                    ),
+
+                    e(
+                        "textarea",
+                        {
+                            name:"description",
+                            placeholder:"Describe your issue...",
+                            required:true,
+                            style:{
+                                ...modalInput,
+                                height:"120px"
+                            }
+                        }
+                    ),
+
+                    e(
+                        "button",
+                        {
+                            type:"submit",
+                            style:{
+                                ...buttonStyle,
+                                width:"100%",
+                                marginTop:"20px"
+                            }
+                        },
+                        "Submit Ticket"
+                    )
+                ),
+
+                e(
+                    "button",
+                    {
+                        onClick:()=>setShowModal(false),
+                        style:{
+                            ...closeButton,
+                            marginTop:"15px"
+                        }
+                    },
+                    "Close"
+                )
+            )
+        )
+    )
+}
+
+const navbar = {
+    background:"#111827",
+    color:"white",
+    padding:"20px 40px",
+    display:"flex",
+    justifyContent:"space-between",
+    alignItems:"center",
+    boxShadow:"0 2px 10px rgba(0,0,0,0.2)"
+}
+
+const buttonStyle = {
+    padding:"12px 20px",
+    border:"none",
+    borderRadius:"8px",
+    cursor:"pointer",
+    background:"white",
+    fontWeight:"bold",
+    fontSize:"15px"
+}
+
+const closeButton = {
+    padding:"10px 20px",
+    border:"none",
+    borderRadius:"8px",
+    cursor:"pointer",
+    width:"100%"
+}
+
+const searchInput = {
+    padding:"12px",
+    width:"260px",
+    borderRadius:"8px",
+    border:"none",
+    fontSize:"15px"
+}
+
+const modalOverlay = {
+    position:"fixed",
+    top:"0",
+    left:"0",
+    width:"100%",
+    height:"100%",
+    background:"rgba(0,0,0,0.5)",
+    display:"flex",
+    justifyContent:"center",
+    alignItems:"center"
+}
+
+const modalBox = {
+    background:"white",
+    padding:"35px",
+    borderRadius:"12px",
+    width:"420px",
+    boxShadow:"0 4px 15px rgba(0,0,0,0.3)"
+}
+
+const modalInput = {
+    width:"100%",
+    padding:"12px",
+    marginTop:"15px",
+    borderRadius:"8px",
+    border:"1px solid #ccc",
+    fontSize:"15px",
+    boxSizing:"border-box"
+}
+
+ReactDOM.createRoot(
+    document.getElementById("root")
+).render(
+    e(Home)
+)
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+# Virtual environment
+venv/
+env/
+
+# Instance folder (Flask local config + DB)
+instance/
+
+# Python cache (anywhere in project, including application/)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
