@@ -6,12 +6,11 @@
     <title>ResolveHub</title>
 
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
 </head>
 
-<body style="margin:0;font-family:Arial, sans-serif;background:#f3f4f6;">
+<body style="margin:0;background:#f3f4f6;font-family:Arial;">
 
 <div id="root"></div>
 
@@ -21,43 +20,61 @@ const e = React.createElement
 
 function Home() {
 
+    const [tickets] = React.useState(
+        JSON.parse(`{{ tickets_data | safe }}`)
+    )
+
+    const userName = `{{ user_name }}`
+
     const [showModal, setShowModal] = React.useState(false)
 
-    const [email, setEmail] = React.useState("")
+    const [inputText, setInputText] = React.useState("")
+    const [searchText, setSearchText] = React.useState("")
 
-    const createTicket = () => {
-        setShowModal(true)
-    }
+    const [statusFilter, setStatusFilter] = React.useState("")
+    const [selectedTicket, setSelectedTicket] = React.useState(null)
 
-    const viewTickets = () => {
+    const filteredTickets = tickets.filter(ticket => {
 
-        if(!email){
+        const combinedText = [
+            ticket.ticket_id,
+            ticket.title,
+            ticket.description,
+            ticket.priority,
+            ticket.status,
+            ticket.created_at
+        ]
+        .join(" ")
+        .toLowerCase()
 
-            alert("Please enter your email first")
+        const matchesSearch =
+            combinedText.includes(searchText.toLowerCase())
 
-            return
-        }
+        const matchesStatus =
+            statusFilter === "" ||
+            ticket.status === statusFilter
 
-        window.location.href = `/tickets/${email}`
-    }
+        return matchesSearch && matchesStatus
+    })
 
     return e(
-        "div",
+        React.Fragment,
         null,
 
         // NAVBAR
+
         e(
             "div",
             {
-                style: navbar
+                style:navbar
             },
 
             e(
                 "h2",
                 {
                     style:{
-                        fontSize:"32px",
-                        margin:"0"
+                        margin:"0",
+                        fontSize:"32px"
                     }
                 },
                 "ResolveHub"
@@ -68,60 +85,140 @@ function Home() {
                 {
                     style:{
                         display:"flex",
-                        gap:"12px",
-                        alignItems:"center"
+                        flexDirection:"column",
+                        alignItems:"center",
+                        gap:"15px"
                     }
                 },
 
                 e(
-                    "input",
+                    "span",
                     {
-                        type:"email",
-                        placeholder:"Enter your email",
-                        value:email,
-                        onChange:(x)=>setEmail(x.target.value),
-                        style:searchInput
-                    }
-                ),
-
-                e(
-                    "button",
-                    {
-                        onClick:createTicket,
-                        style:buttonStyle
+                        style:{
+                            color:"white",
+                            fontWeight:"bold",
+                            fontSize:"18px"
+                        }
                     },
-                    "Create Ticket"
+                    `Welcome, ${userName}`
                 ),
 
+                // SEARCH SECTION
+
                 e(
-                    "button",
+                    "div",
                     {
-                        onClick:viewTickets,
-                        style:buttonStyle
+                        style:searchContainer
                     },
-                    "My Tickets"
-                ),
 
-                e(
-                    "button",
-                    {
-                        onClick:()=>{
-                            window.location.href="/admin/login"
+                    e(
+                        "input",
+                        {
+                            type:"text",
+
+                            placeholder:"Search tickets...",
+
+                            value:inputText,
+
+                            onChange:(event)=>{
+                                setInputText(event.target.value)
+                            },
+
+                            style:searchInput
+                        }
+                    ),
+
+                    e(
+                        "button",
+                        {
+                            style:searchButton,
+
+                            onClick:()=>{
+                                setSearchText(inputText)
+                            }
                         },
-                        style:buttonStyle
+                        "Search"
+                    ),
+
+                    e(
+                        "button",
+                        {
+                            style:clearButton,
+
+                            onClick:()=>{
+                                setInputText("")
+                                setSearchText("")
+                                setStatusFilter("")
+                                setSelectedTicket(null)
+                            }
+                        },
+                        "Clear"
+                    )
+                ),
+
+                // ACTIONS
+
+                e(
+                    "div",
+                    {
+                        style:{
+                            display:"flex",
+                            gap:"12px"
+                        }
                     },
-                    "Admin"
+
+                    e(
+                        "button",
+                        {
+                            style:createButton,
+
+                            onClick:()=>{
+                                setShowModal(true)
+                            }
+                        },
+                        "Create Ticket"
+                    ),
+
+                    e(
+                        "select",
+                        {
+                            value:statusFilter,
+
+                            onChange:(event)=>{
+                                setStatusFilter(event.target.value)
+                            },
+
+                            style:filterSelect
+                        },
+
+                        e("option",{value:""},"All Status"),
+                        e("option",{value:"Open"},"Open"),
+                        e("option",{value:"In Progress"},"In Progress"),
+                        e("option",{value:"Closed"},"Closed")
+                    ),
+
+                    e(
+                        "button",
+                        {
+                            style:logoutButton,
+
+                            onClick:()=>{
+                                window.location.href="/logout"
+                            }
+                        },
+                        "Logout"
+                    )
                 )
             )
         ),
 
-        // HERO SECTION
+        // MAIN CONTENT
+
         e(
             "div",
             {
                 style:{
-                    textAlign:"center",
-                    padding:"120px 40px"
+                    padding:"40px"
                 }
             },
 
@@ -129,31 +226,88 @@ function Home() {
                 "h1",
                 {
                     style:{
-                        fontSize:"64px",
-                        marginBottom:"20px",
+                        fontSize:"48px",
+                        marginBottom:"10px",
                         color:"#111827"
                     }
                 },
-                "Welcome to ResolveHub"
+                "My Tickets"
             ),
 
             e(
-                "p",
+                "div",
                 {
                     style:{
-                        width:"75%",
-                        margin:"auto",
-                        fontSize:"22px",
-                        lineHeight:"2",
-                        color:"#4b5563"
+                        display:"grid",
+                        gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))",
+                        gap:"25px",
+                        marginTop:"40px"
                     }
                 },
-                "ResolveHub is a modern and intelligent ticket support management platform designed to simplify customer issue tracking and support operations. Users can quickly create support tickets, monitor ticket status, update issue details, and manage their requests efficiently through an easy-to-use interface. The platform ensures transparency and smooth communication between customers and support administrators, helping organizations provide faster issue resolution and improved customer satisfaction."
+
+                filteredTickets.map(ticket =>
+
+                    e(
+                        "div",
+                        {
+                            key:ticket.id,
+                            style:smallTicketCard
+                        },
+
+                        e(
+                            "div",
+                            null,
+
+                            e(
+                                "h2",
+                                {
+                                    style:{
+                                        margin:"0",
+                                        fontSize:"22px",
+                                        marginBottom:"15px"
+                                    }
+                                },
+                                ticket.title
+                            ),
+
+                            e(
+                                "p",
+                                {
+                                    style:ticketText
+                                },
+                                `Priority: ${ticket.priority}`
+                            ),
+
+                            e(
+                                "p",
+                                {
+                                    style:ticketText
+                                },
+                                `Status: ${ticket.status}`
+                            )
+                        ),
+
+                        e(
+                            "button",
+                            {
+                                style:viewButton,
+
+                                onClick:()=>{
+                                    setSelectedTicket(ticket)
+                                }
+                            },
+                            "View Details"
+                        )
+                    )
+                )
             )
         ),
 
-        // MODAL
-        showModal && e(
+        // CREATE MODAL
+
+        showModal &&
+
+        e(
             "div",
             {
                 style:modalOverlay
@@ -166,10 +320,24 @@ function Home() {
                 },
 
                 e(
+                    "button",
+                    {
+                        style:xButton,
+
+                        onClick:()=>{
+                            setShowModal(false)
+                        }
+                    },
+                    "×"
+                ),
+
+                e(
                     "h2",
                     {
                         style:{
-                            marginBottom:"20px"
+                            marginTop:"0",
+                            marginBottom:"20px",
+                            color:"#111827"
                         }
                     },
                     "Create Support Ticket"
@@ -182,73 +350,130 @@ function Home() {
                         action:"/create-ticket"
                     },
 
-                    e(
-                        "input",
-                        {
-                            name:"name",
-                            placeholder:"Customer Name",
-                            required:true,
-                            style:modalInput
-                        }
-                    ),
+                    // CATEGORY
 
                     e(
-                        "input",
-                        {
-                            name:"email",
-                            placeholder:"Customer Email",
-                            required:true,
-                            style:modalInput
-                        }
-                    ),
-
-                    e(
-                        "input",
+                        "select",
                         {
                             name:"title",
-                            placeholder:"Issue Title",
                             required:true,
                             style:modalInput
-                        }
+                        },
+
+                        e("option",{value:""},"Select Ticket Category"),
+
+                        e("option",{value:"Payment Issue"},"Payment Issue"),
+                        e("option",{value:"Login Problem"},"Login Problem"),
+                        e("option",{value:"Account Access Request"},"Account Access Request"),
+                        e("option",{value:"Bug Report"},"Bug Report"),
+                        e("option",{value:"Feature Request"},"Feature Request"),
+                        e("option",{value:"Technical Support"},"Technical Support")
                     ),
+
+                    // DESCRIPTION
 
                     e(
                         "textarea",
                         {
                             name:"description",
-                            placeholder:"Describe your issue...",
+
+                            placeholder:"Describe your issue in detail...",
+
                             required:true,
+
                             style:{
                                 ...modalInput,
-                                height:"120px"
+                                height:"140px",
+                                resize:"none"
                             }
                         }
                     ),
+
+                    // PRIORITY
+
+                    e(
+                        "select",
+                        {
+                            name:"priority",
+                            required:true,
+                            style:modalInput
+                        },
+
+                        e("option",{value:""},"Select Priority"),
+                        e("option",{value:"Low"},"Low"),
+                        e("option",{value:"Medium"},"Medium"),
+                        e("option",{value:"High"},"High")
+                    ),
+
+                    // SUBMIT BUTTON
 
                     e(
                         "button",
                         {
                             type:"submit",
-                            style:{
-                                ...buttonStyle,
-                                width:"100%",
-                                marginTop:"20px"
-                            }
+
+                            style:submitButton
                         },
                         "Submit Ticket"
                     )
-                ),
+                )
+            )
+        ),
+
+        // VIEW MODAL
+
+        selectedTicket &&
+
+        e(
+            "div",
+            {
+                style:modalOverlay
+            },
+
+            e(
+                "div",
+                {
+                    style:modalBox
+                },
 
                 e(
                     "button",
                     {
-                        onClick:()=>setShowModal(false),
-                        style:{
-                            ...closeButton,
-                            marginTop:"15px"
+                        style:xButton,
+
+                        onClick:()=>{
+                            setSelectedTicket(null)
                         }
                     },
-                    "Close"
+                    "×"
+                ),
+
+                e("h1",null,selectedTicket.title),
+
+                e("p",null,`Ticket ID: ${selectedTicket.ticket_id}`),
+                e("p",null,`Priority: ${selectedTicket.priority}`),
+                e("p",null,`Status: ${selectedTicket.status}`),
+                e("p",null,`Created At: ${selectedTicket.created_at}`),
+
+                e(
+                    "div",
+                    {
+                        style:{
+                            marginTop:"20px"
+                        }
+                    },
+
+                    e("h3",null,"Description"),
+
+                    e(
+                        "p",
+                        {
+                            style:{
+                                lineHeight:"1.8"
+                            }
+                        },
+                        selectedTicket.description
+                    )
                 )
             )
         )
@@ -258,37 +483,100 @@ function Home() {
 const navbar = {
     background:"#111827",
     color:"white",
-    padding:"20px 40px",
+    padding:"30px",
     display:"flex",
-    justifyContent:"space-between",
+    flexDirection:"column",
     alignItems:"center",
-    boxShadow:"0 2px 10px rgba(0,0,0,0.2)"
+    gap:"20px"
 }
 
-const buttonStyle = {
-    padding:"12px 20px",
-    border:"none",
-    borderRadius:"8px",
-    cursor:"pointer",
-    background:"white",
-    fontWeight:"bold",
-    fontSize:"15px"
-}
-
-const closeButton = {
-    padding:"10px 20px",
-    border:"none",
-    borderRadius:"8px",
-    cursor:"pointer",
-    width:"100%"
+const searchContainer = {
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"center",
+    gap:"12px",
+    background:"rgba(255,255,255,0.08)",
+    padding:"12px 18px",
+    borderRadius:"14px"
 }
 
 const searchInput = {
     padding:"12px",
-    width:"260px",
+    width:"300px",
     borderRadius:"8px",
+    border:"none"
+}
+
+const searchButton = {
+    padding:"12px 18px",
     border:"none",
-    fontSize:"15px"
+    borderRadius:"8px",
+    background:"#2563eb",
+    color:"white",
+    fontWeight:"bold",
+    cursor:"pointer"
+}
+
+const clearButton = {
+    padding:"12px 18px",
+    border:"none",
+    borderRadius:"8px",
+    background:"#6b7280",
+    color:"white",
+    fontWeight:"bold",
+    cursor:"pointer"
+}
+
+const createButton = {
+    padding:"12px 18px",
+    border:"none",
+    borderRadius:"8px",
+    background:"#16a34a",
+    color:"white",
+    fontWeight:"bold",
+    cursor:"pointer"
+}
+
+const filterSelect = {
+    padding:"12px",
+    borderRadius:"8px",
+    border:"none"
+}
+
+const logoutButton = {
+    padding:"12px 18px",
+    border:"none",
+    borderRadius:"8px",
+    background:"#dc2626",
+    color:"white",
+    fontWeight:"bold",
+    cursor:"pointer"
+}
+
+const smallTicketCard = {
+    background:"white",
+    borderRadius:"18px",
+    padding:"24px",
+    minHeight:"180px",
+    display:"flex",
+    flexDirection:"column",
+    justifyContent:"space-between",
+    boxShadow:"0 4px 14px rgba(0,0,0,0.08)"
+}
+
+const ticketText = {
+    color:"#4b5563",
+    fontSize:"16px"
+}
+
+const viewButton = {
+    padding:"12px 18px",
+    border:"none",
+    borderRadius:"10px",
+    background:"#2563eb",
+    color:"white",
+    fontWeight:"bold",
+    cursor:"pointer"
 }
 
 const modalOverlay = {
@@ -297,18 +585,19 @@ const modalOverlay = {
     left:"0",
     width:"100%",
     height:"100%",
-    background:"rgba(0,0,0,0.5)",
+    background:"rgba(0,0,0,0.45)",
     display:"flex",
     justifyContent:"center",
-    alignItems:"center"
+    alignItems:"center",
+    zIndex:"9999"
 }
 
 const modalBox = {
     background:"white",
-    padding:"35px",
-    borderRadius:"12px",
-    width:"420px",
-    boxShadow:"0 4px 15px rgba(0,0,0,0.3)"
+    width:"500px",
+    borderRadius:"18px",
+    padding:"30px",
+    position:"relative"
 }
 
 const modalInput = {
@@ -316,9 +605,34 @@ const modalInput = {
     padding:"12px",
     marginTop:"15px",
     borderRadius:"8px",
-    border:"1px solid #ccc",
-    fontSize:"15px",
+    border:"1px solid #d1d5db",
     boxSizing:"border-box"
+}
+
+const submitButton = {
+    width:"100%",
+    padding:"14px",
+    marginTop:"20px",
+    border:"none",
+    borderRadius:"10px",
+    background:"#111827",
+    color:"white",
+    fontWeight:"bold",
+    cursor:"pointer"
+}
+
+const xButton = {
+    position:"absolute",
+    top:"15px",
+    right:"15px",
+    width:"40px",
+    height:"40px",
+    border:"none",
+    borderRadius:"50%",
+    background:"#dc2626",
+    color:"white",
+    fontSize:"20px",
+    cursor:"pointer"
 }
 
 ReactDOM.createRoot(

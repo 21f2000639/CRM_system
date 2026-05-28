@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html>
 
@@ -7,7 +6,6 @@
     <title>Admin Dashboard</title>
 
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
 </head>
@@ -20,25 +18,32 @@
 
 const e = React.createElement
 
-const tickets = JSON.parse('{{ tickets_data | safe }}')
-
 function AdminDashboard() {
 
-    const [searchText,setSearchText] = React.useState("")
-    const [statusFilter,setStatusFilter] = React.useState("")
+    const [tickets] = React.useState(
+        JSON.parse(`{{ tickets_data | safe }}`)
+    )
+
+    const [inputText, setInputText] = React.useState("")
+    const [searchText, setSearchText] = React.useState("")
+
+    const [statusFilter, setStatusFilter] = React.useState("")
+    const [selectedTicket, setSelectedTicket] = React.useState(null)
 
     const filteredTickets = tickets.filter(ticket => {
 
-        const combinedText = `
-            ${ticket.ticket_id}
-            ${ticket.user_name}
-            ${ticket.user_email}
-            ${ticket.priority}
-            ${ticket.description}
-            ${ticket.created_at}
-            ${ticket.status}
-            ${ticket.title}
-        `.toLowerCase()
+        const combinedText = [
+            ticket.ticket_id,
+            ticket.user_name,
+            ticket.user_email,
+            ticket.priority,
+            ticket.description,
+            ticket.created_at,
+            ticket.status,
+            ticket.title
+        ]
+        .join(" ")
+        .toLowerCase()
 
         const matchesSearch =
             combinedText.includes(searchText.toLowerCase())
@@ -51,8 +56,13 @@ function AdminDashboard() {
     })
 
     return e(
-        "div",
+
+        React.Fragment,
         null,
+
+        // ======================================
+        // NAVBAR
+        // ======================================
 
         e(
             "div",
@@ -61,36 +71,14 @@ function AdminDashboard() {
             },
 
             e(
-                "div",
+                "h2",
                 {
                     style:{
-                        display:"flex",
-                        alignItems:"center",
-                        gap:"20px"
+                        margin:"0",
+                        fontSize:"30px"
                     }
                 },
-
-                e(
-                    "h2",
-                    {
-                        style:{
-                            margin:"0",
-                            fontSize:"30px"
-                        }
-                    },
-                    "ResolveHub Admin"
-                ),
-
-                e(
-                    "button",
-                    {
-                        style:navButton,
-                        onClick:()=>{
-                            window.location.href="/"
-                        }
-                    },
-                    "Home"
-                )
+                "ResolveHub Admin"
             ),
 
             e(
@@ -107,11 +95,15 @@ function AdminDashboard() {
                     "input",
                     {
                         type:"text",
+
                         placeholder:"Search tickets...",
-                        value:searchText,
+
+                        value:inputText,
+
                         onChange:(event)=>{
-                            setSearchText(event.target.value)
+                            setInputText(event.target.value)
                         },
+
                         style:searchInput
                     }
                 ),
@@ -119,7 +111,11 @@ function AdminDashboard() {
                 e(
                     "button",
                     {
-                        style:searchButton
+                        style:searchButton,
+
+                        onClick:()=>{
+                            setSearchText(inputText)
+                        }
                     },
                     "Search"
                 ),
@@ -128,9 +124,12 @@ function AdminDashboard() {
                     "button",
                     {
                         style:clearButton,
+
                         onClick:()=>{
+                            setInputText("")
                             setSearchText("")
                             setStatusFilter("")
+                            setSelectedTicket(null)
                         }
                     },
                     "Clear"
@@ -140,9 +139,11 @@ function AdminDashboard() {
                     "select",
                     {
                         value:statusFilter,
+
                         onChange:(event)=>{
                             setStatusFilter(event.target.value)
                         },
+
                         style:filterSelect
                     },
 
@@ -156,6 +157,7 @@ function AdminDashboard() {
                     "button",
                     {
                         style:logoutButton,
+
                         onClick:()=>{
                             window.location.href="/admin/logout"
                         }
@@ -164,6 +166,10 @@ function AdminDashboard() {
                 )
             )
         ),
+
+        // ======================================
+        // MAIN CONTENT
+        // ======================================
 
         e(
             "div",
@@ -195,7 +201,7 @@ function AdminDashboard() {
                         marginBottom:"40px"
                     }
                 },
-                "Monitor customer support tickets, update ticket statuses, search support requests instantly, and manage customer issues efficiently from a centralized dashboard."
+                "Monitor and manage all customer support tickets."
             ),
 
             filteredTickets.length === 0 ?
@@ -212,103 +218,221 @@ function AdminDashboard() {
 
             :
 
-            filteredTickets.map(ticket =>
+            e(
+                "div",
+                {
+                    style:{
+                        display:"grid",
+                        gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))",
+                        gap:"25px"
+                    }
+                },
 
-                e(
-                    "div",
-                    {
-                        key:ticket.id,
-                        style:ticketCard
-                    },
-
-                    e(
-                        "div",
-                        {
-                            style:{
-                                display:"flex",
-                                justifyContent:"space-between",
-                                alignItems:"center"
-                            }
-                        },
-
-                        e(
-                            "h2",
-                            {
-                                style:{
-                                    margin:"0",
-                                    color:"#111827"
-                                }
-                            },
-                            ticket.title
-                        ),
-
-                        e(
-                            "span",
-                            {
-                                style:statusBadge
-                            },
-                            ticket.status
-                        )
-                    ),
+                filteredTickets.map(ticket =>
 
                     e(
                         "div",
                         {
-                            style:{
-                                marginTop:"20px",
-                                fontSize:"17px",
-                                lineHeight:"1.9"
-                            }
-                        },
-
-                        e("p",null,`Ticket ID: ${ticket.ticket_id}`),
-                        e("p",null,`Customer Name: ${ticket.user_name}`),
-                        e("p",null,`Customer Email: ${ticket.user_email}`),
-                        e("p",null,`Priority: ${ticket.priority}`),
-                        e("p",null,`Description: ${ticket.description}`),
-                        e("p",null,`Created At: ${ticket.created_at}`)
-                    ),
-
-                    e(
-                        "form",
-                        {
-                            method:"POST",
-                            action:`/admin/update-status/${ticket.id}`,
-                            style:{
-                                marginTop:"25px",
-                                display:"flex",
-                                gap:"10px",
-                                alignItems:"center"
-                            }
+                            key:ticket.id,
+                            style:smallTicketCard
                         },
 
                         e(
-                            "select",
-                            {
-                                name:"status",
-                                defaultValue:ticket.status,
-                                style:updateSelect
-                            },
+                            "div",
+                            null,
 
-                            e("option",{value:"Open"},"Open"),
-                            e("option",{value:"In Progress"},"In Progress"),
-                            e("option",{value:"Closed"},"Closed")
+                            e(
+                                "h2",
+                                {
+                                    style:{
+                                        margin:"0",
+                                        color:"#111827",
+                                        fontSize:"22px",
+                                        marginBottom:"18px"
+                                    }
+                                },
+                                ticket.title
+                            ),
+
+                            e(
+                                "p",
+                                {
+                                    style:ticketText
+                                },
+                                `Priority: ${ticket.priority}`
+                            ),
+
+                            e(
+                                "p",
+                                {
+                                    style:ticketText
+                                },
+                                `Status: ${ticket.status}`
+                            )
                         ),
 
                         e(
                             "button",
                             {
-                                type:"submit",
-                                style:updateButton
+                                style:viewButton,
+
+                                onClick:()=>{
+                                    setSelectedTicket(ticket)
+                                }
                             },
-                            "Update Status"
+                            "View Details"
                         )
+                    )
+                )
+            )
+        ),
+
+        // ======================================
+        // VIEW MODAL
+        // ======================================
+
+        selectedTicket &&
+
+        e(
+            "div",
+            {
+                style:modalOverlay
+            },
+
+            e(
+                "div",
+                {
+                    style:modalBox
+                },
+
+                e(
+                    "button",
+                    {
+                        style:xButton,
+
+                        onClick:()=>{
+                            setSelectedTicket(null)
+                        }
+                    },
+                    "×"
+                ),
+
+                e(
+                    "h1",
+                    {
+                        style:{
+                            marginTop:"0",
+                            color:"#111827"
+                        }
+                    },
+                    selectedTicket.title
+                ),
+
+                e(
+                    "div",
+                    {
+                        style:{
+                            marginTop:"20px",
+                            lineHeight:"2",
+                            color:"#374151",
+                            fontSize:"17px"
+                        }
+                    },
+
+                    e("p",null,`Ticket ID: ${selectedTicket.ticket_id}`),
+                    e("p",null,`Customer Name: ${selectedTicket.user_name}`),
+                    e("p",null,`Customer Email: ${selectedTicket.user_email}`),
+                    e("p",null,`Priority: ${selectedTicket.priority}`),
+                    e("p",null,`Status: ${selectedTicket.status}`),
+                    e("p",null,`Created At: ${selectedTicket.created_at}`)
+                ),
+
+                e(
+                    "div",
+                    {
+                        style:{
+                            marginTop:"30px",
+                            background:"#f9fafb",
+                            padding:"22px",
+                            borderRadius:"14px"
+                        }
+                    },
+
+                    e(
+                        "h3",
+                        {
+                            style:{
+                                marginTop:"0",
+                                color:"#111827"
+                            }
+                        },
+                        "Description"
+                    ),
+
+                    e(
+                        "p",
+                        {
+                            style:{
+                                lineHeight:"1.9",
+                                color:"#4b5563"
+                            }
+                        },
+                        selectedTicket.description
+                    )
+                ),
+
+                // ======================================
+                // ADMIN STATUS UPDATE
+                // ======================================
+
+                e(
+                    "form",
+                    {
+                        method:"POST",
+
+                        action:`/admin/update-status/${selectedTicket.id}`,
+
+                        style:{
+                            marginTop:"30px",
+                            display:"flex",
+                            gap:"15px",
+                            alignItems:"center"
+                        }
+                    },
+
+                    e(
+                        "select",
+                        {
+                            name:"status",
+
+                            defaultValue:selectedTicket.status,
+
+                            style:updateSelect
+                        },
+
+                        e("option",{value:"Open"},"Open"),
+                        e("option",{value:"In Progress"},"In Progress"),
+                        e("option",{value:"Closed"},"Closed")
+                    ),
+
+                    e(
+                        "button",
+                        {
+                            type:"submit",
+
+                            style:updateButton
+                        },
+                        "Update Status"
                     )
                 )
             )
         )
     )
 }
+
+// ======================================
+// STYLES
+// ======================================
 
 const navbar = {
     background:"#111827",
@@ -319,17 +443,9 @@ const navbar = {
     alignItems:"center"
 }
 
-const navButton = {
-    padding:"12px 18px",
-    border:"none",
-    borderRadius:"8px",
-    cursor:"pointer",
-    fontWeight:"bold"
-}
-
 const searchInput = {
     padding:"12px",
-    width:"280px",
+    width:"260px",
     borderRadius:"8px",
     border:"none"
 }
@@ -370,32 +486,80 @@ const logoutButton = {
     cursor:"pointer"
 }
 
-const ticketCard = {
+const smallTicketCard = {
     background:"white",
-    padding:"30px",
-    borderRadius:"14px",
-    marginTop:"30px",
-    boxShadow:"0 3px 12px rgba(0,0,0,0.1)"
+    borderRadius:"18px",
+    padding:"24px",
+    minHeight:"180px",
+    display:"flex",
+    flexDirection:"column",
+    justifyContent:"space-between",
+    boxShadow:"0 4px 14px rgba(0,0,0,0.08)"
 }
 
-const statusBadge = {
-    background:"#111827",
+const ticketText = {
+    color:"#4b5563",
+    fontSize:"16px",
+    lineHeight:"1.8"
+}
+
+const viewButton = {
+    padding:"12px 18px",
+    border:"none",
+    borderRadius:"10px",
+    background:"#2563eb",
     color:"white",
-    padding:"8px 14px",
-    borderRadius:"20px",
-    fontSize:"14px"
+    fontWeight:"bold",
+    cursor:"pointer"
+}
+
+const modalOverlay = {
+    position:"fixed",
+    top:"0",
+    left:"0",
+    width:"100%",
+    height:"100%",
+    background:"rgba(0,0,0,0.45)",
+    backdropFilter:"blur(6px)",
+    display:"flex",
+    justifyContent:"center",
+    alignItems:"center",
+    zIndex:"9999"
+}
+
+const modalBox = {
+    background:"white",
+    width:"500px",
+    maxWidth:"92%",
+    borderRadius:"18px",
+    padding:"30px",
+    position:"relative"
+}
+
+const xButton = {
+    position:"absolute",
+    top:"15px",
+    right:"15px",
+    width:"40px",
+    height:"40px",
+    border:"none",
+    borderRadius:"50%",
+    background:"#dc2626",
+    color:"white",
+    fontSize:"20px",
+    cursor:"pointer"
 }
 
 const updateSelect = {
     padding:"12px",
-    borderRadius:"8px",
+    borderRadius:"10px",
     width:"220px"
 }
 
 const updateButton = {
     padding:"12px 18px",
     border:"none",
-    borderRadius:"8px",
+    borderRadius:"10px",
     background:"#111827",
     color:"white",
     cursor:"pointer",
@@ -412,4 +576,3 @@ ReactDOM.createRoot(
 
 </body>
 </html>
-```

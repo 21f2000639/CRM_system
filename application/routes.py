@@ -1,4 +1,3 @@
-
 from flask import Blueprint, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from application.models import db, User, Admin, Ticket
@@ -16,6 +15,10 @@ def entry():
 
     return render_template("entry.html")
 
+
+# =========================================================
+# USER REGISTER
+# =========================================================
 
 @routes.route("/register", methods=["GET", "POST"])
 def register():
@@ -75,6 +78,10 @@ def register():
     )
 
 
+# =========================================================
+# USER LOGIN
+# =========================================================
+
 @routes.route("/login", methods=["GET", "POST"])
 def user_login():
 
@@ -109,7 +116,7 @@ def user_login():
         session["user_name"] = user.name
         session["user_email"] = user.email
 
-        return redirect(url_for("routes.user_dashboard"))
+        return redirect(url_for("routes.home"))
 
     return render_template(
         "login.html",
@@ -117,8 +124,12 @@ def user_login():
     )
 
 
-@routes.route("/dashboard")
-def user_dashboard():
+# =========================================================
+# USER HOME DASHBOARD
+# =========================================================
+
+@routes.route("/home")
+def home():
 
     if "user_id" not in session:
 
@@ -126,7 +137,7 @@ def user_dashboard():
 
     tickets = Ticket.query.filter_by(
         user_id=session["user_id"]
-    ).all()
+    ).order_by(Ticket.created_at.desc()).all()
 
     tickets_data = []
 
@@ -137,17 +148,21 @@ def user_dashboard():
             "ticket_id": ticket.ticket_id,
             "title": ticket.title,
             "description": ticket.description,
-            "status": ticket.status,
-            "priority": ticket.priority,
-            "created_at": str(ticket.created_at)
+            "status": str(ticket.status),
+            "priority": str(ticket.priority),
+            "created_at": ticket.created_at.strftime("%d %b %Y %I:%M %p")
         })
 
     return render_template(
-        "user_dashboard.html",
+        "home.html",
         tickets_data=json.dumps(tickets_data),
         user_name=session["user_name"]
     )
 
+
+# =========================================================
+# CREATE TICKET
+# =========================================================
 
 @routes.route("/create-ticket", methods=["POST"])
 def create_ticket():
@@ -172,8 +187,12 @@ def create_ticket():
 
     db.session.commit()
 
-    return redirect(url_for("routes.user_dashboard"))
+    return redirect(url_for("routes.home"))
 
+
+# =========================================================
+# VIEW TICKET
+# =========================================================
 
 @routes.route("/view-ticket/<int:id>")
 def view_ticket(id):
@@ -189,13 +208,17 @@ def view_ticket(id):
 
     if not ticket:
 
-        return redirect(url_for("routes.user_dashboard"))
+        return redirect(url_for("routes.home"))
 
     return render_template(
         "view_ticket.html",
         ticket=ticket
     )
 
+
+# =========================================================
+# EDIT TICKET
+# =========================================================
 
 @routes.route("/edit-ticket/<int:id>", methods=["GET", "POST"])
 def edit_ticket(id):
@@ -211,7 +234,7 @@ def edit_ticket(id):
 
     if not ticket:
 
-        return redirect(url_for("routes.user_dashboard"))
+        return redirect(url_for("routes.home"))
 
     if request.method == "POST":
 
@@ -221,13 +244,17 @@ def edit_ticket(id):
 
         db.session.commit()
 
-        return redirect(url_for("routes.user_dashboard"))
+        return redirect(url_for("routes.home"))
 
     return render_template(
         "edit_ticket.html",
         ticket=ticket
     )
 
+
+# =========================================================
+# USER LOGOUT
+# =========================================================
 
 @routes.route("/logout")
 def logout():
@@ -236,6 +263,10 @@ def logout():
 
     return redirect(url_for("routes.entry"))
 
+
+# =========================================================
+# ADMIN LOGIN
+# =========================================================
 
 @routes.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
@@ -278,6 +309,10 @@ def admin_login():
     )
 
 
+# =========================================================
+# ADMIN DASHBOARD
+# =========================================================
+
 @routes.route("/admin/dashboard")
 def admin_dashboard():
 
@@ -296,9 +331,9 @@ def admin_dashboard():
             "ticket_id": ticket.ticket_id,
             "title": ticket.title,
             "description": ticket.description,
-            "status": ticket.status,
-            "priority": ticket.priority,
-            "created_at": str(ticket.created_at),
+            "status": str(ticket.status),
+            "priority": str(ticket.priority),
+            "created_at": ticket.created_at.strftime("%d %b %Y %I:%M %p"),
             "user_name": ticket.user.name,
             "user_email": ticket.user.email
         })
@@ -309,6 +344,10 @@ def admin_dashboard():
     )
 
 
+# =========================================================
+# UPDATE STATUS
+# =========================================================
+
 @routes.route("/admin/update-status/<int:id>", methods=["POST"])
 def update_ticket_status(id):
 
@@ -316,16 +355,28 @@ def update_ticket_status(id):
 
         return redirect(url_for("routes.admin_login"))
 
-    ticket = Ticket.query.get(id)
+    ticket = Ticket.query.get_or_404(id)
 
-    if ticket:
+    new_status = request.form.get("status")
 
-        ticket.status = request.form.get("status")
+    valid_statuses = [
+        "Open",
+        "In Progress",
+        "Closed"
+    ]
+
+    if new_status in valid_statuses:
+
+        ticket.status = new_status
 
         db.session.commit()
 
     return redirect(url_for("routes.admin_dashboard"))
 
+
+# =========================================================
+# ADMIN LOGOUT
+# =========================================================
 
 @routes.route("/admin/logout")
 def admin_logout():
@@ -333,4 +384,3 @@ def admin_logout():
     session.clear()
 
     return redirect(url_for("routes.admin_login"))
-
