@@ -22,13 +22,13 @@ asgi_app = WsgiToAsgi(app)  # <-- Added global wrapper variable
 with app.app_context():
     db.create_all()
 
-    admin = Admin.query.filter_by(email="user0@admin.com").first()
+    admin = Admin.query.filter_by(email="gaurangi@gmail.com").first()
 
     if not admin:
         admin = Admin(
-            name="Admin",
-            email="user0@admin.com",
-            password=generate_password_hash("1234")
+            name="Gaurangi",
+            email="gaurangi@gmail.com",
+            password=generate_password_hash("adminpassword")
         )
 
         db.session.add(admin)
