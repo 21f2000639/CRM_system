@@ -35,4 +35,4 @@ with app.app_context():
         print("Admin already exists!")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
