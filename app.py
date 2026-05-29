@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash
 from application.routes import routes
 from application.config import LocalDevelopmentConfig
 from application.models import db, Admin
+from asgiref.wsgi import WsgiToAsgi  # <-- Added wrapper import
 import os
 
 def create_app():
@@ -14,6 +15,9 @@ def create_app():
     return app
 
 app = create_app()
+
+# Wrap the WSGI app for ASGI server compatibility
+asgi_app = WsgiToAsgi(app)  # <-- Added global wrapper variable
 
 with app.app_context():
     db.create_all()
@@ -31,11 +35,11 @@ with app.app_context():
         db.session.commit()
 
         print("Admin created successfully!")
-
     else:
         print("Admin already exists!")
 
+# This block is kept intact for local development purposes
 if __name__ == "__main__":
+    import uvicorn
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
-    
+    uvicorn.run("app:asgi_app", host='0.0.0.0', port=port, log_level="info")

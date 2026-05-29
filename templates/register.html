@@ -10,6 +10,32 @@
 
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
+    <style>
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                padding: 18px !important;
+                gap: 16px !important;
+            }
+            .container {
+                flex-direction: column !important;
+                justify-content: flex-start !important;
+                height: auto !important;
+                padding: 20px 16px !important;
+            }
+            .card {
+                width: min(100%, 450px) !important;
+                padding: 28px !important;
+                margin: 0 auto !important;
+            }
+            .card input,
+            .card button {
+                width: 100% !important;
+            }
+        }
+    </style>
+
 </head>
 
 <body style="margin:0;font-family:Arial;background:#eef2ff;">
@@ -31,7 +57,8 @@ function RegisterPage() {
         e(
             "div",
             {
-                style:navbar
+                style:navbar,
+                className:"navbar"
             },
 
             e(
@@ -60,13 +87,15 @@ function RegisterPage() {
         e(
             "div",
             {
-                style:container
+                style:container,
+                className:"container"
             },
 
             e(
                 "div",
                 {
-                    style:card
+                    style:card,
+                    className:"card"
                 },
 
                 e(

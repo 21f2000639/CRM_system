@@ -9,15 +9,84 @@
 
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
+    <style>
+        .tickets-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #4338ca;
+            padding: 20px 40px;
+            color: white;
+            gap: 10px;
+        }
+        .tickets-search-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .tickets-search-group input,
+        .tickets-search-group select {
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            width: 250px;
+            max-width: 100%;
+        }
+        .tickets-content {
+            padding: 40px;
+        }
+        .ticket-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .ticket-card button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .tickets-navbar {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 20px 16px;
+            }
+            .tickets-search-group {
+                width: 100%;
+            }
+            .tickets-search-group input,
+            .tickets-search-group select {
+                width: 100%;
+            }
+            .tickets-content {
+                padding: 20px 16px;
+            }
+            .ticket-card {
+                width: 100%;
+                margin-top: 20px;
+            }
+            .ticket-card button {
+                width: 100%;
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+
 </head>
 
 <body style="margin:0;font-family:Arial;background:#eef2ff;">
 
-<div style="background:#4338ca;padding:20px 40px;color:white;display:flex;justify-content:space-between;align-items:center;">
+<div class="tickets-navbar">
 
     <h2 style="margin:0;font-size:28px;">ResolveHub - My Tickets</h2>
 
-    <div style="display:flex;gap:10px;align-items:center;">
+    <div class="tickets-search-group">
 
         <input
             id="searchInput"
@@ -47,7 +116,7 @@
 
 </div>
 
-<div style="padding:40px;">
+<div class="tickets-content">
 
     <h1 style="margin-bottom:10px;">My Support Tickets</h1>
 

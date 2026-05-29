@@ -37,6 +37,53 @@ function Home() {
     const [editTitle, setEditTitle] = React.useState("")
     const [editDescription, setEditDescription] = React.useState("")
     const [editPriority, setEditPriority] = React.useState("")
+    const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768)
+
+    React.useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768)
+        window.addEventListener("resize", handleResize)
+        return () => window.removeEventListener("resize", handleResize)
+    }, [])
+
+    const navbarStyle = {
+        ...navbar,
+        flexDirection: isMobile ? "column" : "row",
+        alignItems: isMobile ? "flex-start" : "center",
+        gap: isMobile ? "18px" : "0",
+        padding: isMobile ? "20px" : "30px 40px"
+    }
+
+    const searchBoxStyle = {
+        ...searchBox,
+        position: isMobile ? "static" : "absolute",
+        left: isMobile ? "auto" : "50%",
+        top: isMobile ? "auto" : "50%",
+        transform: isMobile ? "none" : "translate(-50%, -50%)",
+        width: isMobile ? "100%" : "auto",
+        flexDirection: isMobile ? "column" : "row",
+        alignItems: isMobile ? "stretch" : "center",
+        padding: isMobile ? "18px 16px" : searchBox.padding
+    }
+
+    const searchInputStyle = {
+        ...searchInput,
+        width: isMobile ? "100%" : "260px"
+    }
+
+    const statusSelectStyle = {
+        ...filterSelect,
+        width: isMobile ? "100%" : "auto"
+    }
+
+    const actionRowStyle = {
+        display: "flex",
+        gap: "12px",
+        alignItems: "center",
+        flexWrap: isMobile ? "wrap" : "nowrap",
+        width: isMobile ? "100%" : "auto"
+    }
+
+    const contentPadding = isMobile ? "20px" : "40px"
 
     const filteredTickets = tickets.filter(ticket => {
 
@@ -106,7 +153,7 @@ function Home() {
         e(
             "div",
             {
-                style:navbar
+                style:navbarStyle
             },
 
             e(
@@ -147,7 +194,7 @@ function Home() {
             e(
                 "div",
                 {
-                    style:searchBox
+                    style:searchBoxStyle
                 },
 
                 e(
@@ -163,7 +210,7 @@ function Home() {
                             setInputText(event.target.value)
                         },
 
-                        style:searchInput
+                        style:searchInputStyle
                     }
                 ),
 
@@ -198,11 +245,7 @@ function Home() {
             e(
                 "div",
                 {
-                    style:{
-                        display:"flex",
-                        gap:"12px",
-                        alignItems:"center"
-                    }
+                    style:actionRowStyle
                 },
 
                 e(
@@ -236,9 +279,8 @@ function Home() {
                                 setStatusFilter(event.target.value)
                             },
 
-                            style:filterSelect
+                            style:statusSelectStyle
                         },
-
                         e("option",{value:""},"All Status"),
                         e("option",{value:"Open"},"Open"),
                         e("option",{value:"In Progress"},"In Progress"),
@@ -265,7 +307,7 @@ function Home() {
     "div",
     {
         style:{
-            padding:"40px"
+            padding:contentPadding
         }
     },
 
@@ -299,8 +341,9 @@ function Home() {
         {
             style:{
                 display:"grid",
-                gridTemplateColumns:"repeat(auto-fill, minmax(280px, 1fr))",
-                gap:"24px"
+                gridTemplateColumns:"repeat(auto-fit, minmax(220px, 1fr))",
+                justifyContent:"center",
+                gap:"20px"
             }
         },
 
