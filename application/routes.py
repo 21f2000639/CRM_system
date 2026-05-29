@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, app, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from application.models import db, User, Admin, Ticket
 import random
@@ -8,6 +8,11 @@ import re
 routes = Blueprint("routes", __name__)
 
 EMAIL_REGEX = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+
+@app.route("/health")
+def health():
+    print("HEALTH ROUTE HIT")
+    return "OK"
 
 
 @routes.route("/")
