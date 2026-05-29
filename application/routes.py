@@ -9,7 +9,7 @@ routes = Blueprint("routes", __name__)
 
 EMAIL_REGEX = r"^[\w\.-]+@[\w\.-]+\.\w+$"
 
-@app.route("/health")
+@routes.route("/health")
 def health():
     print("HEALTH ROUTE HIT")
     return "OK"
