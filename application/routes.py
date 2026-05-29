@@ -13,8 +13,8 @@ EMAIL_REGEX = r"^[\w\.-]+@[\w\.-]+\.\w+$"
 @routes.route("/")
 def entry():
     
-    return "Application running successfully!"
-    #return render_template("entry.html")
+    
+    return render_template("entry.html")
 
 
 # =========================================================
