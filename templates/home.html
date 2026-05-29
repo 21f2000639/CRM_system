@@ -47,27 +47,33 @@ function Home() {
 
     const navbarStyle = {
         ...navbar,
-        flexDirection: isMobile ? "column" : "row",
-        alignItems: isMobile ? "flex-start" : "center",
-        gap: isMobile ? "18px" : "0",
+        flexDirection: "column",
+        alignItems: "stretch",
+        gap: isMobile ? "18px" : "20px",
         padding: isMobile ? "20px" : "30px 40px"
+    }
+
+    const topRowStyle = {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        width: "100%",
+        gap: "16px",
+        flexWrap: "wrap"
     }
 
     const searchBoxStyle = {
         ...searchBox,
-        position: isMobile ? "static" : "absolute",
-        left: isMobile ? "auto" : "50%",
-        top: isMobile ? "auto" : "50%",
-        transform: isMobile ? "none" : "translate(-50%, -50%)",
-        width: isMobile ? "100%" : "auto",
+        width: "100%",
+        justifyContent: "center",
         flexDirection: isMobile ? "column" : "row",
-        alignItems: isMobile ? "stretch" : "center",
-        padding: isMobile ? "18px 16px" : searchBox.padding
+        alignItems: "center",
+        flexWrap: "wrap"
     }
 
     const searchInputStyle = {
         ...searchInput,
-        width: isMobile ? "100%" : "260px"
+        width: isMobile ? "100%" : "320px"
     }
 
     const statusSelectStyle = {
@@ -159,35 +165,91 @@ function Home() {
             e(
                 "div",
                 {
-                    style:{
-                        display:"flex",
-                        flexDirection:"column",
-                        justifyContent:"center",
-                        gap:"12px"
-                    }
+                    style:topRowStyle
                 },
 
                 e(
-                    "h2",
+                    "div",
                     {
                         style:{
-                            margin:"0",
-                            fontSize:"28px"
+                            display:"flex",
+                            flexDirection:"column",
+                            justifyContent:"center",
+                            gap:"12px"
                         }
                     },
-                    "ResolveHub"
+
+                    e(
+                        "h2",
+                        {
+                            style:{
+                                margin:"0",
+                                fontSize:"28px"
+                            }
+                        },
+                        "ResolveHub"
+                    ),
+
+                    e(
+                        "span",
+                        {
+                            style:{
+                                color:"white",
+                                fontWeight:"bold",
+                                fontSize:"18px"
+                            }
+                        },
+                        `Welcome, ${userName}`
+                    )
                 ),
 
                 e(
-                    "span",
+                    "div",
                     {
                         style:{
-                            color:"white",
-                            fontWeight:"bold",
-                            fontSize:"18px"
+                            display:"flex",
+                            gap:"12px",
+                            alignItems:"center",
+                            flexWrap:"wrap"
                         }
                     },
-                    `Welcome, ${userName}`
+
+                    e(
+                        "button",
+                        {
+                            style:createButton,
+                            onClick:()=>{
+                                setShowModal(true)
+                            }
+                        },
+                        "Create Ticket"
+                    ),
+
+                    e(
+                        "select",
+                        {
+                            value:statusFilter,
+                            onChange:(event)=>{
+                                setStatusFilter(event.target.value)
+                            },
+                            style:statusSelectStyle
+                        },
+                        e("option",{value:""},"All Status"),
+                        e("option",{value:"Open"},"Open"),
+                        e("option",{value:"In Progress"},"In Progress"),
+                        e("option",{value:"Closed"},"Closed")
+                    ),
+
+                    e(
+                        "button",
+                        {
+                            style:logoutButton,
+                            onClick:()=>{
+                                window.location.href="/logout"
+                            }
+                        },
+                        "Logout"
+                    )
                 )
             ),
 
@@ -201,15 +263,11 @@ function Home() {
                     "input",
                     {
                         type:"text",
-
                         placeholder:"Search tickets...",
-
                         value:inputText,
-
                         onChange:(event)=>{
                             setInputText(event.target.value)
                         },
-
                         style:searchInputStyle
                     }
                 ),
@@ -218,7 +276,6 @@ function Home() {
                     "button",
                     {
                         style:searchButton,
-
                         onClick:()=>{
                             setSearchText(inputText)
                         }
@@ -230,7 +287,6 @@ function Home() {
                     "button",
                     {
                         style:clearButton,
-
                         onClick:()=>{
                             setInputText("")
                             setSearchText("")
@@ -239,65 +295,6 @@ function Home() {
                         }
                     },
                     "Clear"
-                )
-            ),
-
-            e(
-                "div",
-                {
-                    style:actionRowStyle
-                },
-
-                e(
-                    "div",
-                    {
-                        style:{
-                            display:"flex",
-                            gap:"12px",
-                            alignItems:"center"
-                        }
-                    },
-
-                    e(
-                        "button",
-                        {
-                            style:createButton,
-
-                            onClick:()=>{
-                                setShowModal(true)
-                            }
-                        },
-                        "Create Ticket"
-                    ),
-
-                    e(
-                        "select",
-                        {
-                            value:statusFilter,
-
-                            onChange:(event)=>{
-                                setStatusFilter(event.target.value)
-                            },
-
-                            style:statusSelectStyle
-                        },
-                        e("option",{value:""},"All Status"),
-                        e("option",{value:"Open"},"Open"),
-                        e("option",{value:"In Progress"},"In Progress"),
-                        e("option",{value:"Closed"},"Closed")
-                    ),
-
-                    e(
-                        "button",
-                        {
-                            style:logoutButton,
-
-                            onClick:()=>{
-                                window.location.href="/logout"
-                            }
-                        },
-                        "Logout"
-                    )
                 )
             )
         ),
@@ -910,10 +907,9 @@ const searchBox = {
     borderRadius:"18px",
     boxShadow:"0 18px 40px rgba(15,23,42,0.08)",
     border:"1px solid rgba(67,56,202,0.14)",
-    position:"absolute",
-    left:"50%",
-    top:"50%",
-    transform:"translate(-50%, -50%)"
+    width:"100%",
+    flexWrap:"wrap",
+    justifyContent:"center"
 }
 
 const searchInput = {
