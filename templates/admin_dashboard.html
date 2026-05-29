@@ -10,7 +10,7 @@
 
 </head>
 
-<body style="margin:0;background:#f3f4f6;font-family:Arial;">
+<body style="margin:0;background:#eef2ff;font-family:Arial;">
 
 <div id="root"></div>
 
@@ -74,8 +74,8 @@ function AdminDashboard() {
                 "h2",
                 {
                     style:{
-                        margin:"0",
-                        fontSize:"30px"
+                        margin:0,
+                        fontSize:"28px"
                     }
                 },
                 "ResolveHub Admin"
@@ -84,47 +84,34 @@ function AdminDashboard() {
             e(
                 "div",
                 {
-                    style:{
-                        display:"flex",
-                        gap:"10px",
-                        alignItems:"center"
-                    }
+                    style:searchBox
                 },
-
                 e(
                     "input",
                     {
                         type:"text",
-
                         placeholder:"Search tickets...",
-
                         value:inputText,
-
                         onChange:(event)=>{
                             setInputText(event.target.value)
                         },
-
                         style:searchInput
                     }
                 ),
-
                 e(
                     "button",
                     {
                         style:searchButton,
-
                         onClick:()=>{
                             setSearchText(inputText)
                         }
                     },
                     "Search"
                 ),
-
                 e(
                     "button",
                     {
                         style:clearButton,
-
                         onClick:()=>{
                             setInputText("")
                             setSearchText("")
@@ -133,31 +120,36 @@ function AdminDashboard() {
                         }
                     },
                     "Clear"
-                ),
+                )
+            ),
 
+            e(
+                "div",
+                {
+                    style:{
+                        display:"flex",
+                        gap:"16px",
+                        alignItems:"center"
+                    }
+                },
                 e(
                     "select",
                     {
                         value:statusFilter,
-
                         onChange:(event)=>{
                             setStatusFilter(event.target.value)
                         },
-
                         style:filterSelect
                     },
-
                     e("option",{value:""},"All Status"),
                     e("option",{value:"Open"},"Open"),
                     e("option",{value:"In Progress"},"In Progress"),
                     e("option",{value:"Closed"},"Closed")
                 ),
-
                 e(
                     "button",
                     {
                         style:logoutButton,
-
                         onClick:()=>{
                             window.location.href="/admin/logout"
                         }
@@ -223,8 +215,8 @@ function AdminDashboard() {
                 {
                     style:{
                         display:"grid",
-                        gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))",
-                        gap:"25px"
+                        gridTemplateColumns:"repeat(auto-fit, minmax(180px, 1fr))",
+                        gap:"20px"
                     }
                 },
 
@@ -332,53 +324,108 @@ function AdminDashboard() {
                     "div",
                     {
                         style:{
-                            marginTop:"20px",
-                            lineHeight:"2",
+                            marginTop:"0",
+                            lineHeight:"1.6",
                             color:"#374151",
-                            fontSize:"17px"
-                        }
-                    },
-
-                    e("p",null,`Ticket ID: ${selectedTicket.ticket_id}`),
-                    e("p",null,`Customer Name: ${selectedTicket.user_name}`),
-                    e("p",null,`Customer Email: ${selectedTicket.user_email}`),
-                    e("p",null,`Priority: ${selectedTicket.priority}`),
-                    e("p",null,`Status: ${selectedTicket.status}`),
-                    e("p",null,`Created At: ${selectedTicket.created_at}`)
-                ),
-
-                e(
-                    "div",
-                    {
-                        style:{
-                            marginTop:"30px",
-                            background:"#f9fafb",
-                            padding:"22px",
-                            borderRadius:"14px"
+                            fontSize:"14px"
                         }
                     },
 
                     e(
-                        "h3",
+                        "p",
                         {
                             style:{
-                                marginTop:"0",
-                                color:"#111827"
+                                fontSize:"12px",
+                                color:"#6b7280",
+                                margin:"4px 0"
                             }
                         },
-                        "Description"
+                        `ID: ${selectedTicket.ticket_id}`
                     ),
 
                     e(
                         "p",
                         {
                             style:{
-                                lineHeight:"1.9",
-                                color:"#4b5563"
+                                fontSize:"13px",
+                                color:"#4b5563",
+                                margin:"4px 0"
                             }
                         },
-                        selectedTicket.description
+                        `Customer: ${selectedTicket.user_name}`
+                    ),
+
+                    e(
+                        "p",
+                        {
+                            style:{
+                                fontSize:"13px",
+                                color:"#4b5563",
+                                margin:"4px 0"
+                            }
+                        },
+                        `Email: ${selectedTicket.user_email}`
+                    ),
+
+                    e(
+                        "p",
+                        {
+                            style:{
+                                fontSize:"13px",
+                                color:"#4b5563",
+                                margin:"4px 0"
+                            }
+                        },
+                        `Priority: ${selectedTicket.priority}`
+                    ),
+
+                    e(
+                        "p",
+                        {
+                            style:{
+                                fontSize:"13px",
+                                color:"#4b5563",
+                                margin:"4px 0"
+                            }
+                        },
+                        `Status: ${selectedTicket.status}`
+                    ),
+
+                    e(
+                        "p",
+                        {
+                            style:{
+                                fontSize:"12px",
+                                color:"#6b7280",
+                                margin:"4px 0"
+                            }
+                        },
+                        `Created: ${selectedTicket.created_at}`
                     )
+                ),
+
+                e(
+                    "hr",
+                    {
+                        style:{
+                            border:"none",
+                            borderTop:"1px solid #e5e7eb",
+                            margin:"12px 0"
+                        }
+                    }
+                ),
+
+                e(
+                    "p",
+                    {
+                        style:{
+                            fontSize:"13px",
+                            lineHeight:"1.6",
+                            color:"#4b5563",
+                            margin:"0 0 12px 0"
+                        }
+                    },
+                    selectedTicket.description
                 ),
 
                 // ======================================
@@ -435,12 +482,14 @@ function AdminDashboard() {
 // ======================================
 
 const navbar = {
-    background:"#111827",
+    background:"#4338ca",
     color:"white",
-    padding:"20px 40px",
+    padding:"30px 40px",
+    minHeight:"120px",
     display:"flex",
     justifyContent:"space-between",
-    alignItems:"center"
+    alignItems:"center",
+    position:"relative"
 }
 
 const searchInput = {
@@ -470,6 +519,21 @@ const clearButton = {
     cursor:"pointer"
 }
 
+const searchBox = {
+    position:"absolute",
+    left:"50%",
+    top:"50%",
+    transform:"translate(-50%, -50%)",
+    display:"flex",
+    alignItems:"center",
+    gap:"12px",
+    padding:"18px 22px",
+    background:"white",
+    borderRadius:"18px",
+    boxShadow:"0 18px 40px rgba(15,23,42,0.08)",
+    border:"1px solid rgba(67,56,202,0.14)"
+}
+
 const filterSelect = {
     padding:"12px",
     borderRadius:"8px",
@@ -488,19 +552,19 @@ const logoutButton = {
 
 const smallTicketCard = {
     background:"white",
-    borderRadius:"18px",
-    padding:"24px",
-    minHeight:"180px",
+    borderRadius:"12px",
+    padding:"16px",
+    minHeight:"120px",
     display:"flex",
     flexDirection:"column",
     justifyContent:"space-between",
-    boxShadow:"0 4px 14px rgba(0,0,0,0.08)"
+    boxShadow:"0 2px 8px rgba(0,0,0,0.08)"
 }
 
 const ticketText = {
     color:"#4b5563",
-    fontSize:"16px",
-    lineHeight:"1.8"
+    fontSize:"14px",
+    margin:"6px 0"
 }
 
 const viewButton = {
@@ -529,10 +593,10 @@ const modalOverlay = {
 
 const modalBox = {
     background:"white",
-    width:"500px",
+    width:"420px",
     maxWidth:"92%",
-    borderRadius:"18px",
-    padding:"30px",
+    borderRadius:"14px",
+    padding:"20px",
     position:"relative"
 }
 

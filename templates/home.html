@@ -10,7 +10,7 @@
 
 </head>
 
-<body style="margin:0;background:#f3f4f6;font-family:Arial;">
+<body style="margin:0;background:#eef2ff;font-family:Arial;">
 
 <div id="root"></div>
 
@@ -20,19 +20,23 @@ const e = React.createElement
 
 function Home() {
 
-    const [tickets] = React.useState(
+    const [tickets, setTickets] = React.useState(
         JSON.parse(`{{ tickets_data | safe }}`)
     )
 
     const userName = `{{ user_name }}`
 
     const [showModal, setShowModal] = React.useState(false)
+    const [showEditModal, setShowEditModal] = React.useState(false)
 
     const [inputText, setInputText] = React.useState("")
     const [searchText, setSearchText] = React.useState("")
 
     const [statusFilter, setStatusFilter] = React.useState("")
     const [selectedTicket, setSelectedTicket] = React.useState(null)
+    const [editTitle, setEditTitle] = React.useState("")
+    const [editDescription, setEditDescription] = React.useState("")
+    const [editPriority, setEditPriority] = React.useState("")
 
     const filteredTickets = tickets.filter(ticket => {
 
@@ -57,6 +61,42 @@ function Home() {
         return matchesSearch && matchesStatus
     })
 
+    const openEditModal = ticket => {
+        setSelectedTicket(ticket)
+        setEditTitle(ticket.title)
+        setEditDescription(ticket.description)
+        setEditPriority(ticket.priority)
+        setShowEditModal(true)
+    }
+
+    const saveTicketUpdate = () => {
+        fetch(`/update-ticket/${selectedTicket.id}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                title: editTitle,
+                description: editDescription,
+                priority: editPriority
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            setTickets(prev => prev.map(t =>
+                t.id === selectedTicket.id ? {
+                    ...t,
+                    title: editTitle,
+                    description: editDescription,
+                    priority: editPriority
+                } : t
+            ))
+            setShowEditModal(false)
+            setSelectedTicket(null)
+        })
+        .catch(error => console.error("Error updating ticket:", error))
+    }
+
     return e(
         React.Fragment,
         null,
@@ -70,26 +110,26 @@ function Home() {
             },
 
             e(
-                "h2",
-                {
-                    style:{
-                        margin:"0",
-                        fontSize:"32px"
-                    }
-                },
-                "ResolveHub"
-            ),
-
-            e(
                 "div",
                 {
                     style:{
                         display:"flex",
                         flexDirection:"column",
-                        alignItems:"center",
-                        gap:"15px"
+                        justifyContent:"center",
+                        gap:"12px"
                     }
                 },
+
+                e(
+                    "h2",
+                    {
+                        style:{
+                            margin:"0",
+                            fontSize:"28px"
+                        }
+                    },
+                    "ResolveHub"
+                ),
 
                 e(
                     "span",
@@ -101,69 +141,77 @@ function Home() {
                         }
                     },
                     `Welcome, ${userName}`
-                ),
+                )
+            ),
 
-                // SEARCH SECTION
+            e(
+                "div",
+                {
+                    style:searchBox
+                },
 
                 e(
-                    "div",
+                    "input",
                     {
-                        style:searchContainer
-                    },
+                        type:"text",
 
-                    e(
-                        "input",
-                        {
-                            type:"text",
+                        placeholder:"Search tickets...",
 
-                            placeholder:"Search tickets...",
+                        value:inputText,
 
-                            value:inputText,
-
-                            onChange:(event)=>{
-                                setInputText(event.target.value)
-                            },
-
-                            style:searchInput
-                        }
-                    ),
-
-                    e(
-                        "button",
-                        {
-                            style:searchButton,
-
-                            onClick:()=>{
-                                setSearchText(inputText)
-                            }
+                        onChange:(event)=>{
+                            setInputText(event.target.value)
                         },
-                        "Search"
-                    ),
 
-                    e(
-                        "button",
-                        {
-                            style:clearButton,
-
-                            onClick:()=>{
-                                setInputText("")
-                                setSearchText("")
-                                setStatusFilter("")
-                                setSelectedTicket(null)
-                            }
-                        },
-                        "Clear"
-                    )
+                        style:searchInput
+                    }
                 ),
 
-                // ACTIONS
+                e(
+                    "button",
+                    {
+                        style:searchButton,
+
+                        onClick:()=>{
+                            setSearchText(inputText)
+                        }
+                    },
+                    "Search"
+                ),
+
+                e(
+                    "button",
+                    {
+                        style:clearButton,
+
+                        onClick:()=>{
+                            setInputText("")
+                            setSearchText("")
+                            setStatusFilter("")
+                            setSelectedTicket(null)
+                        }
+                    },
+                    "Clear"
+                )
+            ),
+
+            e(
+                "div",
+                {
+                    style:{
+                        display:"flex",
+                        gap:"12px",
+                        alignItems:"center"
+                    }
+                },
 
                 e(
                     "div",
                     {
                         style:{
                             display:"flex",
-                            gap:"12px"
+                            gap:"12px",
+                            alignItems:"center"
                         }
                     },
 
@@ -213,95 +261,235 @@ function Home() {
         ),
 
         // MAIN CONTENT
-
         e(
-            "div",
-            {
-                style:{
-                    padding:"40px"
-                }
-            },
+    "div",
+    {
+        style:{
+            padding:"40px"
+        }
+    },
 
-            e(
-                "h1",
-                {
-                    style:{
-                        fontSize:"48px",
-                        marginBottom:"10px",
-                        color:"#111827"
-                    }
-                },
-                "My Tickets"
-            ),
+    e(
+        "h1",
+        {
+            style:{
+                fontSize:"42px",
+                marginBottom:"10px",
+                color:"#111827",
+                fontWeight:"700"
+            }
+        },
+        "My Tickets"
+    ),
+
+    e(
+        "p",
+        {
+            style:{
+                color:"#6b7280",
+                fontSize:"18px",
+                marginBottom:"35px"
+            }
+        },
+        "Track and manage all your support requests."
+    ),
+
+    e(
+        "div",
+        {
+            style:{
+                display:"grid",
+                gridTemplateColumns:"repeat(auto-fill, minmax(280px, 1fr))",
+                gap:"24px"
+            }
+        },
+
+        filteredTickets.map(ticket =>
 
             e(
                 "div",
                 {
+                    key:ticket.id,
+
                     style:{
-                        display:"grid",
-                        gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))",
-                        gap:"25px",
-                        marginTop:"40px"
+                        background:"white",
+                        borderRadius:"16px",
+                        padding:"22px",
+                        boxShadow:"0 4px 15px rgba(0,0,0,0.08)",
+                        display:"flex",
+                        flexDirection:"column",
+                        justifyContent:"space-between",
+                        minHeight:"220px",
+                        transition:"0.3s"
                     }
                 },
 
-                filteredTickets.map(ticket =>
+                // TOP CONTENT
+
+                e(
+                    "div",
+                    null,
 
                     e(
                         "div",
                         {
-                            key:ticket.id,
-                            style:smallTicketCard
+                            style:{
+                                display:"flex",
+                                justifyContent:"space-between",
+                                alignItems:"center",
+                                marginBottom:"15px"
+                            }
                         },
 
                         e(
-                            "div",
-                            null,
-
-                            e(
-                                "h2",
-                                {
-                                    style:{
-                                        margin:"0",
-                                        fontSize:"22px",
-                                        marginBottom:"15px"
-                                    }
-                                },
-                                ticket.title
-                            ),
-
-                            e(
-                                "p",
-                                {
-                                    style:ticketText
-                                },
-                                `Priority: ${ticket.priority}`
-                            ),
-
-                            e(
-                                "p",
-                                {
-                                    style:ticketText
-                                },
-                                `Status: ${ticket.status}`
-                            )
+                            "span",
+                            {
+                                style:{
+                                    background:"#dbeafe",
+                                    color:"#1d4ed8",
+                                    padding:"6px 12px",
+                                    borderRadius:"20px",
+                                    fontSize:"12px",
+                                    fontWeight:"600"
+                                }
+                            },
+                            ticket.priority
                         ),
+
+                        e(
+                            "span",
+                            {
+                                style:{
+                                    background:
+                                        ticket.status === "Closed"
+                                        ? "#dcfce7"
+                                        : ticket.status === "In Progress"
+                                        ? "#fef3c7"
+                                        : "#fee2e2",
+
+                                    color:
+                                        ticket.status === "Closed"
+                                        ? "#166534"
+                                        : ticket.status === "In Progress"
+                                        ? "#92400e"
+                                        : "#991b1b",
+
+                                    padding:"6px 12px",
+                                    borderRadius:"20px",
+                                    fontSize:"12px",
+                                    fontWeight:"600"
+                                }
+                            },
+                            ticket.status
+                        )
+                    ),
+
+                    e(
+                        "h3",
+                        {
+                            style:{
+                                margin:"0 0 12px 0",
+                                color:"#111827",
+                                fontSize:"22px"
+                            }
+                        },
+                        ticket.title
+                    ),
+
+                    e(
+                        "p",
+                        {
+                            style:{
+                                color:"#6b7280",
+                                fontSize:"14px",
+                                lineHeight:"1.6",
+                                marginBottom:"15px"
+                            }
+                        },
+                        ticket.description.length > 90
+                            ? ticket.description.substring(0,90) + "..."
+                            : ticket.description
+                    )
+                ),
+
+                // FOOTER
+
+                e(
+                    "div",
+                    {
+                        style:{
+                            marginTop:"auto"
+                        }
+                    },
+
+                    e(
+                        "p",
+                        {
+                            style:{
+                                color:"#9ca3af",
+                                fontSize:"13px",
+                                marginBottom:"15px"
+                            }
+                        },
+                        ticket.created_at
+                    ),
+
+                    e(
+                        "div",
+                        {
+                            style:{
+                                display:"flex",
+                                justifyContent:"space-between",
+                                alignItems:"center"
+                            }
+                        },
 
                         e(
                             "button",
                             {
-                                style:viewButton,
+                                style:{
+                                    background:"#2563eb",
+                                    color:"white",
+                                    border:"none",
+                                    borderRadius:"8px",
+                                    padding:"10px 16px",
+                                    cursor:"pointer",
+                                    fontWeight:"600"
+                                },
 
                                 onClick:()=>{
                                     setSelectedTicket(ticket)
                                 }
                             },
                             "View Details"
+                        ),
+
+                        e(
+                            "button",
+                            {
+                                style:{
+                                    background:"#10b981",
+                                    color:"white",
+                                    border:"none",
+                                    borderRadius:"8px",
+                                    padding:"10px 16px",
+                                    cursor:"pointer",
+                                    fontWeight:"600"
+                                },
+
+                                onClick:()=>{
+                                    openEditModal(ticket)
+                                }
+                            },
+                            "Update"
                         )
                     )
                 )
             )
-        ),
+        )
+    )
+),
+       
 
         // CREATE MODAL
 
@@ -422,7 +610,7 @@ function Home() {
 
         // VIEW MODAL
 
-        selectedTicket &&
+        selectedTicket && !showEditModal &&
 
         e(
             "div",
@@ -448,32 +636,212 @@ function Home() {
                     "×"
                 ),
 
-                e("h1",null,selectedTicket.title),
-
-                e("p",null,`Ticket ID: ${selectedTicket.ticket_id}`),
-                e("p",null,`Priority: ${selectedTicket.priority}`),
-                e("p",null,`Status: ${selectedTicket.status}`),
-                e("p",null,`Created At: ${selectedTicket.created_at}`),
-
                 e(
-                    "div",
+                    "h2",
                     {
                         style:{
-                            marginTop:"20px"
+                            margin:"0 0 12px 0",
+                            fontSize:"20px",
+                            color:"#111827"
                         }
                     },
+                    selectedTicket.title
+                ),
 
-                    e("h3",null,"Description"),
+                e(
+                    "p",
+                    {
+                        style:{
+                            fontSize:"12px",
+                            color:"#6b7280",
+                            margin:"6px 0"
+                        }
+                    },
+                    `ID: ${selectedTicket.ticket_id}`
+                ),
 
-                    e(
-                        "p",
-                        {
-                            style:{
-                                lineHeight:"1.8"
-                            }
+                e(
+                    "p",
+                    {
+                        style:{
+                            fontSize:"13px",
+                            color:"#4b5563",
+                            margin:"4px 0"
+                        }
+                    },
+                    `Priority: ${selectedTicket.priority}`
+                ),
+
+                e(
+                    "p",
+                    {
+                        style:{
+                            fontSize:"13px",
+                            color:"#4b5563",
+                            margin:"4px 0"
+                        }
+                    },
+                    `Status: ${selectedTicket.status}`
+                ),
+
+                e(
+                    "p",
+                    {
+                        style:{
+                            fontSize:"12px",
+                            color:"#6b7280",
+                            margin:"4px 0"
+                        }
+                    },
+                    `Created: ${selectedTicket.created_at}`
+                ),
+
+                e(
+                    "hr",
+                    {
+                        style:{
+                            border:"none",
+                            borderTop:"1px solid #e5e7eb",
+                            margin:"12px 0"
+                        }
+                    }
+                ),
+
+                e(
+                    "p",
+                    {
+                        style:{
+                            fontSize:"13px",
+                            lineHeight:"1.6",
+                            color:"#4b5563",
+                            margin:"0"
+                        }
+                    },
+                    selectedTicket.description
+                )
+            )
+        ),
+
+        showEditModal && selectedTicket &&
+
+        e(
+            "div",
+            {
+                style:modalOverlay
+            },
+
+            e(
+                "div",
+                {
+                    style:modalBox
+                },
+
+                e(
+                    "button",
+                    {
+                        style:xButton,
+
+                        onClick:()=>{
+                            setShowEditModal(false)
+                            setSelectedTicket(null)
+                        }
+                    },
+                    "×"
+                ),
+
+                e(
+                    "h2",
+                    {
+                        style:{
+                            marginTop:"0",
+                            marginBottom:"20px",
+                            color:"#111827"
+                        }
+                    },
+                    "Update Ticket"
+                ),
+
+                e(
+                    "label",
+                    null,
+                    "Title"
+                ),
+
+                e(
+                    "input",
+                    {
+                        value:editTitle,
+                        onChange:(event)=>{
+                            setEditTitle(event.target.value)
                         },
-                        selectedTicket.description
-                    )
+                        style:modalInput
+                    }
+                ),
+
+                e(
+                    "label",
+                    {
+                        style:{
+                            marginTop:"15px",
+                            display:"block",
+                            fontWeight:"600"
+                        }
+                    },
+                    "Description"
+                ),
+
+                e(
+                    "textarea",
+                    {
+                        value:editDescription,
+                        onChange:(event)=>{
+                            setEditDescription(event.target.value)
+                        },
+                        style:{
+                            ...modalInput,
+                            height:"140px",
+                            resize:"none"
+                        }
+                    }
+                ),
+
+                e(
+                    "label",
+                    {
+                        style:{
+                            marginTop:"15px",
+                            display:"block",
+                            fontWeight:"600"
+                        }
+                    },
+                    "Priority"
+                ),
+
+                e(
+                    "select",
+                    {
+                        value:editPriority,
+                        onChange:(event)=>{
+                            setEditPriority(event.target.value)
+                        },
+                        style:modalInput
+                    },
+                    e("option",{value:""},"Select Priority"),
+                    e("option",{value:"Low"},"Low"),
+                    e("option",{value:"Medium"},"Medium"),
+                    e("option",{value:"High"},"High")
+                ),
+
+                e(
+                    "button",
+                    {
+                        style:submitButton,
+                        onClick:(event)=>{
+                            event.preventDefault()
+                            saveTicketUpdate()
+                        }
+                    },
+                    "Save Changes"
                 )
             )
         )
@@ -481,23 +849,28 @@ function Home() {
 }
 
 const navbar = {
-    background:"#111827",
+    background:"#4338ca",
     color:"white",
-    padding:"30px",
+    padding:"30px 40px",
     display:"flex",
-    flexDirection:"column",
+    justifyContent:"space-between",
     alignItems:"center",
-    gap:"20px"
+    position:"relative"
 }
 
-const searchContainer = {
+const searchBox = {
     display:"flex",
     alignItems:"center",
-    justifyContent:"center",
     gap:"12px",
-    background:"rgba(255,255,255,0.08)",
-    padding:"12px 18px",
-    borderRadius:"14px"
+    padding:"18px 22px",
+    background:"white",
+    borderRadius:"18px",
+    boxShadow:"0 18px 40px rgba(15,23,42,0.08)",
+    border:"1px solid rgba(67,56,202,0.14)",
+    position:"absolute",
+    left:"50%",
+    top:"50%",
+    transform:"translate(-50%, -50%)"
 }
 
 const searchInput = {
@@ -555,18 +928,19 @@ const logoutButton = {
 
 const smallTicketCard = {
     background:"white",
-    borderRadius:"18px",
-    padding:"24px",
-    minHeight:"180px",
+    borderRadius:"12px",
+    padding:"16px",
+    minHeight:"120px",
     display:"flex",
     flexDirection:"column",
     justifyContent:"space-between",
-    boxShadow:"0 4px 14px rgba(0,0,0,0.08)"
+    boxShadow:"0 2px 8px rgba(0,0,0,0.08)"
 }
 
 const ticketText = {
     color:"#4b5563",
-    fontSize:"16px"
+    fontSize:"14px",
+    margin:"6px 0"
 }
 
 const viewButton = {
@@ -574,6 +948,16 @@ const viewButton = {
     border:"none",
     borderRadius:"10px",
     background:"#2563eb",
+    color:"white",
+    fontWeight:"bold",
+    cursor:"pointer"
+}
+
+const updateButton = {
+    padding:"12px 18px",
+    border:"none",
+    borderRadius:"10px",
+    background:"#f59e0b",
     color:"white",
     fontWeight:"bold",
     cursor:"pointer"
@@ -594,9 +978,10 @@ const modalOverlay = {
 
 const modalBox = {
     background:"white",
-    width:"500px",
-    borderRadius:"18px",
-    padding:"30px",
+    width:"420px",
+    maxWidth:"92%",
+    borderRadius:"14px",
+    padding:"20px",
     position:"relative"
 }
 

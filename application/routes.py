@@ -191,6 +191,37 @@ def create_ticket():
 
 
 # =========================================================
+# UPDATE TICKET
+# =========================================================
+
+@routes.route("/update-ticket/<int:id>", methods=["POST"])
+def update_ticket(id):
+
+    if "user_id" not in session:
+
+        return {"error": "Unauthorized"}, 401
+
+    ticket = Ticket.query.filter_by(
+        id=id,
+        user_id=session["user_id"]
+    ).first()
+
+    if not ticket:
+
+        return {"error": "Ticket not found"}, 404
+
+    data = request.get_json()
+
+    ticket.title = data.get("title", ticket.title)
+    ticket.description = data.get("description", ticket.description)
+    ticket.priority = data.get("priority", ticket.priority)
+
+    db.session.commit()
+
+    return {"status": "success", "message": "Ticket updated successfully"}
+
+
+# =========================================================
 # VIEW TICKET
 # =========================================================
 

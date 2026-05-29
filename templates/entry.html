@@ -11,7 +11,7 @@
 
 </head>
 
-<body style="margin:0;font-family:Arial;background:#f3f4f6;">
+<body style="margin:0;font-family:Arial;background:#eef2ff;">
 
 <div id="root"></div>
 
@@ -29,7 +29,7 @@ function EntryPage() {
             "div",
             {
                 style:{
-                    background:"#111827",
+                    background:"#4338ca",
                     color:"white",
                     padding:"20px 40px",
                     display:"flex",
@@ -42,7 +42,9 @@ function EntryPage() {
                 "h2",
                 {
                     style:{
-                        fontSize:"32px"
+                        fontSize:"28px",
+                        margin:0,
+                        letterSpacing:"0.12em"
                     }
                 },
                 "ResolveHub"
@@ -81,17 +83,31 @@ function EntryPage() {
             ),
 
             e(
-                "p",
+                "div",
                 {
                     style:{
                         width:"75%",
                         margin:"40px auto",
-                        fontSize:"22px",
-                        lineHeight:"2",
-                        color:"#4b5563"
+                        padding:"32px",
+                        background:"white",
+                        borderRadius:"24px",
+                        boxShadow:"0 24px 60px rgba(15,23,42,0.08)",
+                        border:"1px solid rgba(99,102,241,0.12)"
                     }
                 },
-                "ResolveHub is a modern and intelligent ticket support management platform designed to simplify customer issue tracking and support operations. Users can quickly create support tickets, monitor ticket status, update issue details, and manage their requests efficiently through an easy-to-use interface. The platform ensures transparency and smooth communication between customers and support administrators."
+
+                e(
+                    "p",
+                    {
+                        style:{
+                            fontSize:"22px",
+                            lineHeight:"2",
+                            color:"#334155",
+                            margin:0
+                        }
+                    },
+                    "ResolveHub is a modern and intelligent ticket support management platform designed to simplify customer issue tracking and support operations. Users can quickly create support tickets, monitor ticket status, update issue details, and manage their requests efficiently through an easy-to-use interface. The platform ensures transparency and smooth communication between customers and support administrators."
+                )
             ),
 
             e(
